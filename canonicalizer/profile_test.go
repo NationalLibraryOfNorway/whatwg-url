@@ -33,7 +33,7 @@ func TestProfiles(t *testing.T) {
 		{"semantic gopher", "gopher://Example.org:70/A?b=1&a=2", "gopher://example.org/A?a=2&b=1", canon.Semantic()},
 		{"semantic lax path", "http://example.org/%253C%253E%255E", "http://example.org/<>^", canon.Semantic()},
 		{"IA", "HTTP://User:Pass@WWW.Example.org:80/A/%25FC/?B=2&A=1#F", "http://example.org/a/%fc?a=1&b=2", canon.IA()},
-		{"IA passthrough", "dns:WWW.Example.org?B=2&A=1#F", "dns:WWW.Example.org?B=2&A=1#F", canon.IA()},
+		{"IA dns", "dns:WWW.Example.org?B=2&A=1#F", "dns:www.example.org?a=1&b=2", canon.IA()},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()

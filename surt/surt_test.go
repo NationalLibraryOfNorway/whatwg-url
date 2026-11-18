@@ -191,7 +191,7 @@ func TestStringPreservesParserErrorsAndFormattingConventions(t *testing.T) {
 	}
 	for _, tc := range []struct{ input, want string }{
 		{"", "-"},
-		{"warcinfo:raw input", "warcinfo:raw input"},
+		{"filedesc:raw input", "filedesc:raw input"},
 	} {
 		got, err := String(tc.input, WithParser(parser))
 		if err != nil || got != tc.want || parser.calls != 1 {
@@ -206,6 +206,52 @@ func TestSharedIAProfileCanonicalizesOnce(t *testing.T) {
 	got, err := String("http://www.www2.example.org/Path")
 	if err != nil || got != "org,example,www2)/path" {
 		t.Fatalf("String() = %q, %v; canonicalization must run once", got, err)
+	}
+}
+
+func TestArchiveSchemeCanonicalization(t *testing.T) {
+	for _, scheme := range []string{"warcinfo", "dns", "mailto"} {
+		t.Run(scheme, func(t *testing.T) {
+			input := strings.ToUpper(scheme) + ":Foo%2541?B=2&A=1#F"
+			want := scheme + ":fooa?a=1&b=2"
+			got, err := String(input)
+			if err != nil || got != want {
+				t.Fatalf("String = %q, %v; want %q", got, err, want)
+			}
+			for _, reverse := range []func(string) (string, error){UnSURT, UnSSURT} {
+				if got, err := reverse(want); err != nil || got != want {
+					t.Fatalf("reverse = %q, %v; want %q", got, err, want)
+				}
+			}
+			parser := &countingParser{Parser: whatwgurl.NewParser()}
+			if got, err := String(input, WithParser(parser)); err != nil || got != scheme+":Foo%2541?B=2&A=1#F" || parser.calls != 1 {
+				t.Fatalf("selected parser: %q, %v; calls=%d", got, err, parser.calls)
+			}
+			parser.err = errors.New("parser failure")
+			if _, err := String(input, WithParser(parser)); err != parser.err || parser.calls != 2 {
+				t.Fatalf("parser failure: %v; calls=%d", err, parser.calls)
+			}
+			if got, err := String(scheme + "://Example.org/Path"); err != nil || got != "org,example)/path" {
+				t.Fatalf("authority formatting = %q, %v", got, err)
+			}
+			if got, err := SSURTString(input, true); err != nil || got != scheme+":Foo%2541?B=2&A=1#F" {
+				t.Fatalf("SSURT parse-only behavior = %q, %v", got, err)
+			}
+		})
+	}
+	for _, input := range []string{"filedesc:Foo.arc.gz#F", "FILEDESC://Example.org/Path?B=2&A=1#F"} {
+		parser := &countingParser{err: errors.New("must not be called")}
+		if got, err := String(input, WithParser(parser)); err != nil || got != input || parser.calls != 0 {
+			t.Fatalf("filedesc preservation = %q, %v; calls=%d", got, err, parser.calls)
+		}
+	}
+	for input, want := range map[string]string{
+		"dns:WWW.Example.org":        "dns:www.example.org",
+		"mailto:Alice@Example.org#F": "mailto:alice@example.org",
+	} {
+		if got, err := String(input); err != nil || got != want {
+			t.Fatalf("String(%q) = %q, %v; want %q", input, got, err, want)
+		}
 	}
 }
 

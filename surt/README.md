@@ -27,9 +27,17 @@ key, err := surt.String("http://www.example.org/Path?CFID=1",
 mutating it. For explicit composition, call `profile.Parse(rawURL)` and then
 `surt.URL(u)`. Formatting options control scheme inclusion, trailing commas,
 and IP reversal. `WithParser` applies only to `String`; nil restores its
-default parser. Empty input produces `-`, and passthrough schemes retain their
-original input without invoking the parser. Default-scheme fallback belongs
-to the selected profile.
+default parser. Empty input produces `-`. Only `filedesc` URIs retain their
+original input without invoking the parser; scheme recognition is case-insensitive.
+This archive policy differs from Python SURT's case-sensitive `filedesc` prefix
+check. Default-scheme fallback belongs to the selected profile.
+
+`warcinfo`, `dns`, and `mailto` use the selected parser and normal canonicalization.
+Hostless results retain their URI shape rather than undergoing host reversal.
+For example, the default parser turns `dns:WWW.Example.org` into
+`dns:www.example.org` and `mailto:Alice@Example.org#F` into
+`mailto:alice@example.org`. Earlier versions bypassed parsing for these schemes;
+existing canonical keys can change, and custom parsers now run for these inputs.
 
 SSURT uses a parse-only default, retaining path case, credentials,
 query order, and fragments. To select canonicalization explicitly, pass the

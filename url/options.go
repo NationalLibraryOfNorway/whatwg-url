@@ -136,16 +136,6 @@ func WithPercentEncodeSinglePercentSign() ParserOption {
 	})
 }
 
-// WithAllowSettingPathForNonBaseUrl allows SetPathname to change an opaque path.
-// The WHATWG URL Standard leaves opaque paths unchanged by this setter.
-//
-// This API is EXPERIMENTAL.
-func WithAllowSettingPathForNonBaseUrl() ParserOption {
-	return newParserOption(func(o *parser) {
-		o.AllowSettingPathForNonBaseUrl = true
-	})
-}
-
 // WithSkipWindowsDriveLetterNormalization skips conversion of 'C|' to 'C:'.
 // The WHATWG URL Standard requires normalized Windows drive letters.
 //

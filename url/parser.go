@@ -47,7 +47,6 @@ type parser struct {
 	CollapseConsecutiveSlashes          bool
 	AcceptInvalidCodepoints             bool
 	PercentEncodeSinglePercentSign      bool
-	AllowSettingPathForNonBaseUrl       bool
 	SkipWindowsDriveLetterNormalization bool
 	SkipTrailingSlashNormalization      bool
 	HasCustomSpecialSchemes             bool

@@ -56,7 +56,6 @@ func Semantic(opts ...DecodeOption) Profile {
 		url.WithSkipDotSegmentNormalization(),
 		url.WithAcceptInvalidCodepoints(),
 		url.WithPercentEncodeSinglePercentSign(),
-		url.WithAllowSettingPathForNonBaseUrl(),
 		url.WithSpecialSchemes(map[string]uint16{"gopher": 70}),
 	)).WithDefaultScheme("http")
 }

@@ -48,7 +48,6 @@ func Semantic(opts ...DecodeOption) Profile {
 	return New(
 		func(u *url.Url) { semanticRepeatedPercentDecoding(u, options) },
 		RemoveUserInfo,
-		SortQueryAbsolute,
 		RemoveFragment,
 	).WithParser(url.NewParser(
 		url.WithLaxHostParsing(),

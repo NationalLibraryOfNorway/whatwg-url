@@ -65,6 +65,7 @@ The following APIs also change when upgrading from `v0.6.2`:
 | `WithSpecialSchemes(map[string]string{...})` | Use `map[string]uint16` with numeric ports, for example `map[string]uint16{"http": 80}`. |
 | `WithPreParseHostFunc` / `WithPostParseHostFunc` | Transform the input before parsing, or use `RewriteHostname` for transformations of a valid serialized hostname after parsing. |
 | `WithEncodingOverride` | The option has been removed without a transcoding replacement. Already percent-encoded path/query bytes need no encoding hint and are preserved by the parser. |
+| `WithAllowSettingPathForNonBaseUrl` | This option has been removed; delete it from your parser configuration. It had no effect since the June 2023 parser update. `SetPathname` leaves opaque paths unchanged. To deliberately rewrite an opaque path, use `RewritePathname` with an already-serialized value; it does not parse or percent-encode the replacement. |
 | `Parser.BasicParser(...)` | Use `url.BasicParsing` and its `BasicParse(...)` method, for example `p.(url.BasicParsing).BasicParse(...)` for a parser from `NewParser`. |
 | `Parser.PercentEncodeString(...)` | Use the package-level `url.PercentEncode(...)`. |
 | `Parser.NewUrl()` | Parse an initial URL and modify it through the URL API. `url.Parser` now exposes only `Parse` and `ParseRef`. |

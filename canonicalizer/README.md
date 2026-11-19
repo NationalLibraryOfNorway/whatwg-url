@@ -340,6 +340,12 @@ That family also appears in Internet Archive's
 which identifies its default canonicalizer as a port of the Java
 `DefaultIAURLCanonicalizer` from archive-commons.
 
+Normalization also applies to hostless URIs: `dns:WWW.Example.org` becomes
+`dns:www.example.org`, and `mailto:Alice@Example.org#F` becomes
+`mailto:alice@example.org`. The `filedesc` scheme identifies ARC file metadata
+and is exempt from IA normalization. Parsing still applies; `surt.String`
+preserves these identifiers verbatim by bypassing parsing as well.
+
 One difference from Python SURT is above-root dot-segment handling. Its
 [`normalizePath`](https://github.com/internetarchive/surt/blob/5e2c2dff9e684918ba7adf39523ffcf7ff4738cf/surt/GoogleURLCanonicalizer.py#L76-L114)
 can retain `..` when there is no preceding path segment to remove. This

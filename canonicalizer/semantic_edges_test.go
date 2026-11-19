@@ -7,6 +7,38 @@ import (
 	"github.com/nationallibraryofnorway/whatwg-url/url"
 )
 
+func TestSemanticQueryAndFragmentNormalization(t *testing.T) {
+	p := canon.Semantic()
+	for _, tc := range []struct{ name, input, want string }{
+		{"decode before sorting", "http://example.org/?%257A=0&b=2&a=z&a=%2561&a&a=&q=a+b&x=%2526%253D&&#%2523", "http://example.org/?&&a&a=&a=a&a=z&b=2&q=a+b&x=%26%3D&z=0"},
+		{"absent query and fragment", "http://example.org/", "http://example.org/"},
+		{"empty fragment", "http://example.org/#", "http://example.org/"},
+		{"empty query", "http://example.org/?#%2525", "http://example.org/?"},
+		{"opaque path", "custom:opaque %2520#%2523", "custom:opaque%20%20"},
+		{"opaque path with empty query", "custom:opaque %2520?#", "custom:opaque%20%20?"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			checkProfile(t, p, tc.input, tc.want)
+			u, err := p.Parser().Parse(tc.input)
+			if err != nil {
+				t.Fatal(err)
+			}
+			params := u.SearchParams()
+			want, err := url.Parse(tc.want)
+			if err != nil {
+				t.Fatal(err)
+			}
+			form := want.SearchParams().String()
+			for range 2 {
+				p.Canonicalize(u)
+				if u.String() != tc.want || u.SearchParams() != params || params.String() != form {
+					t.Fatalf("Canonicalize: URL=%q form=%q, want URL=%q form=%q", u, params.String(), tc.want, form)
+				}
+			}
+		})
+	}
+}
+
 func TestSemanticDecodedPaths(t *testing.T) {
 	for _, tc := range []struct{ input, want string }{
 		{"http://example.org/a/%252e%252e/b", "http://example.org/b"},

@@ -49,7 +49,7 @@ var iaQueryPartEscapeSet = iaEscapeSet.Set('&')
 var iaQueryNameEscapeSet = iaQueryPartEscapeSet.Set('=')
 
 func canonicalizeIA(u *url.Url, options iaOptions) {
-	if shouldPassthroughScheme(u.Scheme()) {
+	if u.Scheme() == "filedesc" {
 		return
 	}
 	u.SetUsername("")
@@ -145,14 +145,5 @@ var alphaNum32Regex = regexp.MustCompile(`(?i)^[a-z0-9]{32}$`)
 func keepUnlessSessionID(parameter string) QueryFilter {
 	return func(name, value string, hasEquals bool) bool {
 		return !strings.EqualFold(name, parameter) || !hasEquals || !alphaNum32Regex.MatchString(value)
-	}
-}
-
-func shouldPassthroughScheme(scheme string) bool {
-	switch strings.ToLower(scheme) {
-	case "filedesc", "warcinfo", "dns", "mailto":
-		return true
-	default:
-		return false
 	}
 }

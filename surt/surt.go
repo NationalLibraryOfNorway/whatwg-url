@@ -62,7 +62,7 @@ func formatURL(u *whatwgurl.Url, options Options) string {
 	if u == nil {
 		return ""
 	}
-	if u.Hostname() == "" || shouldPassthroughScheme(u.Scheme()) {
+	if u.Hostname() == "" || u.Scheme() == "filedesc" {
 		return u.String()
 	}
 	return serializeSURT(u, options)
@@ -70,12 +70,13 @@ func formatURL(u *whatwgurl.Url, options Options) string {
 
 // String parses rawURL once with the selected parser, then formats it as a
 // SURT. The default parser applies IA canonicalization. Empty input produces
-// "-"; passthrough schemes retain their original input without parsing.
+// "-"; filedesc URIs retain their original input without parsing.
+// The filedesc scheme is recognized case-insensitively.
 func String(rawURL string, opts ...Option) (string, error) {
 	if rawURL == "" {
 		return "-", nil
 	}
-	if scheme, ok := rawScheme(rawURL); ok && shouldPassthroughScheme(scheme) {
+	if scheme, ok := rawScheme(rawURL); ok && strings.EqualFold(scheme, "filedesc") {
 		return rawURL, nil
 	}
 
@@ -166,7 +167,9 @@ func isFourDecimalLabelIP(hostname string) bool {
 	return true
 }
 
-func shouldPassthroughScheme(scheme string) bool {
+// isUnreorderedScheme recognizes URI forms accepted by reverse conversion.
+// It does not exempt those schemes from canonicalization.
+func isUnreorderedScheme(scheme string) bool {
 	switch strings.ToLower(scheme) {
 	case "filedesc", "warcinfo", "dns", "mailto":
 		return true
@@ -198,7 +201,7 @@ func UnSURT(value string) (string, error) {
 	if value == "" || value == "-" {
 		return "", nil
 	}
-	if scheme, ok := rawScheme(value); ok && shouldPassthroughScheme(scheme) && !strings.Contains(value, ")") {
+	if scheme, ok := rawScheme(value); ok && isUnreorderedScheme(scheme) && !strings.Contains(value, ")") {
 		return value, nil
 	}
 

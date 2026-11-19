@@ -80,7 +80,13 @@ func semanticRepeatedPercentDecoding(u *url.Url, options decodeOptions) {
 		}
 		return url.PercentEncode(path, LaxPathPercentEncodeSet.Set('%'))
 	})
-	rewriteDecodedQueryAndFragment(u)
+	// Normalize before sorting, sharing one query parse and commit. Semantic
+	// removes the fragment later, so it does not need escape normalization.
+	rewritePresentQuery(u, func(query url.Query) (url.Query, bool) {
+		normalizeQueryEscapes(query)
+		query.SortAbsolute()
+		return query, true
+	})
 }
 
 // resolvePathDots removes dot segments from rooted paths while retaining

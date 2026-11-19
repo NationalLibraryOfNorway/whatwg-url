@@ -136,15 +136,19 @@ func repeatedPercentDecoding(u *url.Url, pathSet *url.PercentEncodeSet, options 
 
 func rewriteDecodedQueryAndFragment(u *url.Url) {
 	rewritePresentQuery(u, func(query url.Query) (url.Query, bool) {
-		for i := range query {
-			query[i].Name = normalizeEscapes(query[i].Name, RepeatedQueryPercentEncodeSet)
-			query[i].Value = normalizeEscapes(query[i].Value, RepeatedQueryPercentEncodeSet)
-		}
+		normalizeQueryEscapes(query)
 		return query, true
 	})
 	u.RewriteFragment(func(_ *url.Url, fragment string, hasFragment bool) (string, bool) {
 		return normalizeEscapes(fragment, url.FragmentPercentEncodeSet.Set('%')), hasFragment
 	})
+}
+
+func normalizeQueryEscapes(query url.Query) {
+	for i := range query {
+		query[i].Name = normalizeEscapes(query[i].Name, RepeatedQueryPercentEncodeSet)
+		query[i].Value = normalizeEscapes(query[i].Value, RepeatedQueryPercentEncodeSet)
+	}
 }
 
 // Opaque hosts retain permitted punctuation while encoded forbidden host bytes

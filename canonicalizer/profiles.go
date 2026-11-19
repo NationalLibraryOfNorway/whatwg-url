@@ -48,7 +48,6 @@ func Semantic(opts ...DecodeOption) Profile {
 	return New(
 		func(u *url.Url) { semanticRepeatedPercentDecoding(u, options) },
 		RemoveUserInfo,
-		SortQueryAbsolute,
 		RemoveFragment,
 	).WithParser(url.NewParser(
 		url.WithLaxHostParsing(),
@@ -57,7 +56,6 @@ func Semantic(opts ...DecodeOption) Profile {
 		url.WithSkipDotSegmentNormalization(),
 		url.WithAcceptInvalidCodepoints(),
 		url.WithPercentEncodeSinglePercentSign(),
-		url.WithAllowSettingPathForNonBaseUrl(),
 		url.WithSpecialSchemes(map[string]uint16{"gopher": 70}),
 	)).WithDefaultScheme("http")
 }

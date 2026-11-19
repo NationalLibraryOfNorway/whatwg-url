@@ -106,7 +106,7 @@ func UnSSURT(value string) (string, error) {
 	if value == "" {
 		return "", nil
 	}
-	if scheme, ok := rawScheme(value); ok && shouldPassthroughScheme(scheme) && !strings.Contains(value, "//") {
+	if scheme, ok := rawScheme(value); ok && isUnreorderedScheme(scheme) && !strings.Contains(value, "//") {
 		return value, nil
 	}
 
